@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require("express");
 const app = express();
 const cors = require('cors');
@@ -47,6 +47,34 @@ async function run() {
       res.send(result)
     } )
 
+    // Get a single User
+    app.get('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.findOne(query);
+      res.send(result)
+    })
+
+    // Delete User
+    app.delete('/users/:id',  async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne(query);
+      res.send(result) 
+    })
+
+    // Update User Info
+    app.put('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedInfo = req.body;
+      const updatedDoc = {
+        $set: updatedInfo
+      }
+      const result = await userCollection.updateOne(query, updatedDoc, options)
+      res.send(result)   
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
